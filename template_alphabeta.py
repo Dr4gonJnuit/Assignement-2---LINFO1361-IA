@@ -62,6 +62,26 @@ class AlphaBetaAgent(Agent):
         Returns:
             float: The evaluated score of the state.
         """
+        pieces_player, pieces_opponent = self.nmb_of_pieces(state)
+        return pieces_player - pieces_opponent
+    
+    def nmb_of_pieces(self, state): # Not in original file
+        """Returns the number of pieces on the board for the agent's player and the opponent's player.
+
+        Args:
+            state (ShobuState): The game state to evaluate.
+
+        Returns:
+            tuple: A tuple of integers representing the number of pieces for the agent's player and the opponent's player.
+        """
+        pieces_player, pieces_opponent = 0, 0
+        
+        board = state.board
+        for home_board in enumerate(board):
+            pieces_player += len(home_board[0])
+            pieces_opponent += len(home_board[1])
+        
+        return (pieces_player, pieces_opponent)
         ...
 
     def alpha_beta_search(self, state):

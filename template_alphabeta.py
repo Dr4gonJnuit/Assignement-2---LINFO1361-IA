@@ -74,9 +74,9 @@ class AlphaBetaAgent(Agent):
         # If the next player is the agent, that mean the opponent is the agent. Since we want to calculate the score
         # from the perspective of the agent, we need to substract the number of pieces of the opponent that is the agent
         if player_to_play == agent_id:
-            return pieces_opponent - pieces_player
+            return float(pieces_opponent - pieces_player)
         else:
-            return pieces_player - pieces_opponent
+            return float(pieces_player - pieces_opponent)
     
     def nmb_of_pieces(self, state): # Not in original file
         """Returns the number of pieces on the board for the agent's player and the opponent's player.

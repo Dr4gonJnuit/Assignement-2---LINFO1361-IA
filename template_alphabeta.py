@@ -45,10 +45,10 @@ class AlphaBetaAgent(Agent):
         Returns:
             bool: True if the search should be cut off, False otherwise.
         """
-        if self.game.is_terminal(state): # That's mean the game is over
+        if self.max_depth <= depth: # That's mean the search tree is too deep
             return True
         
-        if self.max_depth <= depth: # That's mean the search tree is too deep
+        if self.game.is_terminal(state): # That's mean the game is over
             return True
         
         return False
@@ -65,12 +65,12 @@ class AlphaBetaAgent(Agent):
         agent_id = self.player
         player_to_play = state.to_move # Can be 0 or 1 (Not very useful but it's just for better understanding) -> Can be placed in the if statement below
         
-        pieces_player, pieces_opponent = 0.0, 0.0
+        pieces_player, pieces_opponent = float("inf"), float("inf")
         
         board = state.board
         for _, home_board in enumerate(board): # _ is the home_board id
-            pieces_player += len(home_board[0])
-            pieces_opponent += len(home_board[1])
+            pieces_player += min(len(home_board[0]), pieces_player)
+            pieces_opponent += min(len(home_board[1]), pieces_opponent)
         
         # If the next player is the agent, that mean the opponent is the agent. Since we want to calculate the score
         # from the perspective of the agent, we need to substract the number of pieces of the opponent that is the agent
@@ -111,10 +111,10 @@ class AlphaBetaAgent(Agent):
                 If the state is a terminal state or the depth limit is reached, the action will be None.
         """
         if self.is_cutoff(state, depth):
-            return (self.game.utility(state, self.player), None)
+            return (self.eval(state), None)
         
         v, move = -float("inf"), None
-        for action in self.game.actions(state):
+        for action in state.actions:
             v2, a2 = self.min_value(self.game.result(state, action), alpha, beta, depth + 1)
             if v2 > v:
                 v, move = v2, action
@@ -146,10 +146,10 @@ class AlphaBetaAgent(Agent):
                 If the state is a terminal state or the depth limit is reached, the action will be None.
         """
         if self.is_cutoff(state, depth):
-            return (self.game.utility(state, self.player), None)
+            return (self.eval(state), None)
         
         v, move = float("inf"), None
-        for action in self.game.actions(state):
+        for action in state.actions:
             v2, a2 = self.max_value(self.game.result(state, action), alpha, beta, depth + 1)
             if v2 < v:
                 v, move = v2, action

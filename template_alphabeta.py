@@ -45,10 +45,7 @@ class AlphaBetaAgent(Agent):
         Returns:
             bool: True if the search should be cut off, False otherwise.
         """
-        if self.max_depth <= depth: # That's mean the search tree is too deep
-            return True
-        
-        if self.game.is_terminal(state): # That's mean the game is over
+        if depth >= self.max_depth or self.game.is_terminal(state): # That's mean the search tree is too deep
             return True
         
         return False
@@ -62,22 +59,14 @@ class AlphaBetaAgent(Agent):
         Returns:
             float: The evaluated score of the state.
         """
-        agent_id = self.player
-        player_to_play = state.to_move # Can be 0 or 1 (Not very useful but it's just for better understanding) -> Can be placed in the if statement below
-        
         pieces_player, pieces_opponent = float("inf"), float("inf")
         
         board = state.board
-        for _, home_board in enumerate(board): # _ is the home_board id
-            pieces_player += min(len(home_board[0]), pieces_player)
-            pieces_opponent += min(len(home_board[1]), pieces_opponent)
-        
-        # If the next player is the agent, that mean the opponent is the agent. Since we want to calculate the score
-        # from the perspective of the agent, we need to substract the number of pieces of the opponent that is the agent
-        if player_to_play == agent_id:
-            return pieces_opponent - pieces_player
-        else:
-            return pieces_player - pieces_opponent
+        for home_board_id, home_board in enumerate(board):
+            pieces_player = min(len(home_board[self.player]), pieces_player)
+            pieces_opponent = min(len(home_board[1 - self.player]), pieces_opponent)
+
+        return pieces_player - pieces_opponent
 
     def alpha_beta_search(self, state):
         """Implements the alpha-beta pruning algorithm to find the best action.
@@ -118,7 +107,7 @@ class AlphaBetaAgent(Agent):
             v2, a2 = self.min_value(self.game.result(state, action), alpha, beta, depth + 1)
             if v2 > v:
                 v, move = v2, action
-                aplha = max(alpha, v)
+                alpha = max(alpha, v)
             if v >= beta:
                 return (v, move)
         

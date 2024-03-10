@@ -72,6 +72,7 @@ class UCTAgent(Agent):
             ShobuAction: The action leading to the best-perceived outcome based on UCT algorithm.
         """
         root = Node(None, state)
+        root.children = { Node(root, self.game.result(root.state, action)): action for action in self.game.actions(root.state) }
         for _ in range(self.iteration):
             leaf = self.select(root)
             child = self.expand(leaf)
@@ -83,29 +84,30 @@ class UCTAgent(Agent):
     def select(self, node):
         """Selects a leaf node using the UCB1 formula to maximize exploration and exploitation.
 
-        A node is considered a leaf if it has a potential child from which no simulation has yet been initiated or when the game is finished.
-
+        The function recursively selects the children of the node that maximise the UCB1 score, exploring the most promising 
+        path in the game tree. It stops when a leaf is found and returns it. A leaf is either a node in a terminal state, 
+        or a node with a child for which no simulation has yet been performed.
+        
         Args:
             node (Node): The node to select from.
 
         Returns:
             Node: The selected leaf node.
         """
-        return None
+        ...
     
     def expand(self, node):
         """Expands a node by adding a child node to the tree for an unexplored action.
 
-        This function generates all possible actions from the current state represented by the node if they haven't been explored yet. 
-        For each unexplored action, a new child node is created, representing the state resulting from that action. The function then 
-        selects one of these new child nodes and returns it. If the node represents a terminal state it effectively returns the node itself, 
-        indicating that the node cannot be expanded further.
+        The function returns one of the children of the node for which no simulation has yet been performed. 
+        In addition, the function must initialize all the children of that child node in the child's "children" dictionary. 
+        If the node is in a terminal state, the function returns itself, indicating that the node can no longer be expanded.
 
         Args:
             node (Node): The node to expand. This node represents the current state from which we want to explore possible actions.
 
         Returns:
-            Node: The newly created child node representing the state after an unexplored action. If the node is at a terminal state, the node itself is returned.
+            Node: The child node selected. If the node is at a terminal state, the node itself is returned.
         """
         ...
 
@@ -116,12 +118,17 @@ class UCTAgent(Agent):
             state (ShobuState): The state to simulate from.
 
         Returns:
-            float: The utility value of the terminal state for the player to move.
+            float: The utility value of the resulting terminal state in the point of view of the opponent in the original state.
         """
         ...
 
     def back_propagate(self, result, node):
         """Propagates the result of a simulation back up the tree, updating node statistics.
+
+        This method is responsible for updating the statistics for each node according to the result of the simulation. 
+        It recursively updates the U (utility) and N (number of visits) values for each node on the path from the given 
+        node to the root. The utility of a node is only updated if it is a node that must contain the win rate of the 
+        player who won the simulation, otherwise the utility is not modified.
 
         Args:
             result (float): The result of the simulation.
@@ -133,11 +140,12 @@ class UCTAgent(Agent):
         """Calculates the UCB1 value for a given node.
 
         Args:
-            node (Node): The node to calculate the UCB1 value for.
+            node (Node): The node to calculate the UCB1 value for. 
 
         Returns:
-            float: The UCB1 value.
+            float: The UCB1 value of the node. Returns infinity if the node has not been visited yet.
         """
-        # Note for the future dev seeing this:
-        # In the book, it states log N so I thought it was log10 but it might be log with base e ?
+        if node.N == 0:
+            return float("inf")
+        
         return node.U / node.N + math.sqrt(2) * math.sqrt(math.log10(node.parent.N) / node.N)

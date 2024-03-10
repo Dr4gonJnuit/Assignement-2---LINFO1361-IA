@@ -91,7 +91,7 @@ class UCTAgent(Agent):
         Returns:
             Node: The selected leaf node.
         """
-        ...
+        return None
     
     def expand(self, node):
         """Expands a node by adding a child node to the tree for an unexplored action.
@@ -138,4 +138,6 @@ class UCTAgent(Agent):
         Returns:
             float: The UCB1 value.
         """
-        ...
+        # Note for the future dev seeing this:
+        # In the book, it states log N so I thought it was log10 but it might be log with base e ?
+        return node.U / node.N + math.sqrt(2) * math.sqrt(math.log10(node.parent.N) / node.N)

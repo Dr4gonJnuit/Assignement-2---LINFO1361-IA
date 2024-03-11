@@ -94,7 +94,15 @@ class UCTAgent(Agent):
         Returns:
             Node: The selected leaf node.
         """
-        ...
+        selected_node = node
+        for child in selected_node.children:
+            if child.N == 0 or len(child.children) == 0:
+                return child
+
+            selected_node = max(selected_node.children.values(), key=self.UCB1)
+
+        return selected_node
+
     
     def expand(self, node):
         """Expands a node by adding a child node to the tree for an unexplored action.

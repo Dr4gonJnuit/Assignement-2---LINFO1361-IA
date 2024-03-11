@@ -143,7 +143,10 @@ class UCTAgent(Agent):
             result (float): The result of the simulation.
             node (Node): The node to start backpropagation from.
         """
-        ...
+        while node is not None:
+            node.N += 1
+            node.U += result
+            node = node.parent
 
     def UCB1(self, node):
         """Calculates the UCB1 value for a given node.

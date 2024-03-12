@@ -178,4 +178,4 @@ class UCTAgent(Agent):
         if node.N == 0:
             return float("inf")
 
-        return node.U / node.N + math.sqrt(2) * math.sqrt(math.log10(node.parent.N) / node.N)
+        return node.U / node.N + math.sqrt(2) * math.sqrt(math.log(node.parent.N) / node.N)gi

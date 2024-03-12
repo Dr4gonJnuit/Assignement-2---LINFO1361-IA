@@ -94,16 +94,14 @@ class UCTAgent(Agent):
         Returns:
             Node: The selected leaf node.
         """
-        current_node = node
-
-        while len(current_node.children) != 0:
-
-            current_node = max(current_node.children, key=lambda n: self.UCB1(n))
-
-            if current_node.N == 0: # if the node has not been visited yet, return it
-                return current_node
-
-        return current_node # there are no children, so the node is a leaf
+        nbr_children_without_simulation = len(node.children) - sum([1 for child in node.children if child.N == 0])
+        if nbr_children_without_simulation == 0:
+            return node
+        
+        if node.N == 0 or self.game.is_terminal(node.state):
+            return node
+                
+        return self.select(max(node.children, key=lambda n: self.UCB1(n)))
 
     def expand(self, node):
         """Expands a node by adding a child node to the tree for an unexplored action.
@@ -120,18 +118,14 @@ class UCTAgent(Agent):
         """
         if self.game.is_terminal(node.state):
             return node
+        
+        for child in node.children:
+            if child.N == 0:
+                child.children = { Node(child, self.game.result(child.state, action)): action for action in self.game.actions(child.state) }
+                break
 
-        unexplored_actions = [action for action in self.game.actions(node.state) if action not in node.children.values()]
-
-        if unexplored_actions:
-            action = random.choice(unexplored_actions)
-            new_state = self.game.result(node.state, action)
-            new_child = Node(parent=node, state=new_state)
-            node.children[action] = new_child
-            return new_child
-        else:
-            return node
-
+        return child
+    
     def simulate(self, state):
         """Simulates a random play-through from the given state to a terminal state.
 

@@ -10,7 +10,7 @@ class Node:
     Attributes:
         parent (Node): The parent node of this node.
         state (ShobuState): The game state represented by this node.
-        U (int): The total reward of the node. 
+        U (int): The total reward of the node.
         N (int): The number of times the node has been visited.
         children (dict[Node, ShobuAction]): A dictionary mapping child nodes to their corresponding actions that lead to the state they represent.
     """
@@ -84,10 +84,10 @@ class UCTAgent(Agent):
     def select(self, node):
         """Selects a leaf node using the UCB1 formula to maximize exploration and exploitation.
 
-        The function recursively selects the children of the node that maximise the UCB1 score, exploring the most promising 
-        path in the game tree. It stops when a leaf is found and returns it. A leaf is either a node in a terminal state, 
+        The function recursively selects the children of the node that maximise the UCB1 score, exploring the most promising
+        path in the game tree. It stops when a leaf is found and returns it. A leaf is either a node in a terminal state,
         or a node with a child for which no simulation has yet been performed.
-        
+
         Args:
             node (Node): The node to select from.
 
@@ -95,21 +95,21 @@ class UCTAgent(Agent):
             Node: The selected leaf node.
         """
         current_node = node
-        
+
         while len(current_node.children) != 0:
-            
+
             current_node = max(current_node.children, key=lambda n: self.UCB1(n))
-            
+
             if current_node.N == 0: # if the node has not been visited yet, return it
                 return current_node
-        
+
         return current_node # there are no children, so the node is a leaf
-    
+
     def expand(self, node):
         """Expands a node by adding a child node to the tree for an unexplored action.
 
-        The function returns one of the children of the node for which no simulation has yet been performed. 
-        In addition, the function must initialize all the children of that child node in the child's "children" dictionary. 
+        The function returns one of the children of the node for which no simulation has yet been performed.
+        In addition, the function must initialize all the children of that child node in the child's "children" dictionary.
         If the node is in a terminal state, the function returns itself, indicating that the node can no longer be expanded.
 
         Args:
@@ -118,7 +118,19 @@ class UCTAgent(Agent):
         Returns:
             Node: The child node selected. If the node is at a terminal state, the node itself is returned.
         """
-        ...
+        if self.game.is_terminal(node.state):
+            return node
+
+        unexplored_actions = [action for action in self.game.actions(node.state) if action not in node.children.values()]
+
+        if unexplored_actions:
+            action = random.choice(unexplored_actions)
+            new_state = self.game.result(node.state, action)
+            new_child = Node(parent=node, state=new_state)
+            node.children[action] = new_child
+            return new_child
+        else:
+            return node
 
     def simulate(self, state):
         """Simulates a random play-through from the given state to a terminal state.
@@ -129,14 +141,20 @@ class UCTAgent(Agent):
         Returns:
             float: The utility value of the resulting terminal state in the point of view of the opponent in the original state.
         """
-        ...
+        current_state = state
+        while not self.game.is_terminal(current_state):
+            possible_actions = self.game.actions(current_state)
+            random_action = random.choice(possible_actions)
+            current_state = self.game.result(current_state, random_action)
+
+        return -current_state.utility if self.player == 0 else current_state.utility
 
     def back_propagate(self, result, node):
         """Propagates the result of a simulation back up the tree, updating node statistics.
 
-        This method is responsible for updating the statistics for each node according to the result of the simulation. 
-        It recursively updates the U (utility) and N (number of visits) values for each node on the path from the given 
-        node to the root. The utility of a node is only updated if it is a node that must contain the win rate of the 
+        This method is responsible for updating the statistics for each node according to the result of the simulation.
+        It recursively updates the U (utility) and N (number of visits) values for each node on the path from the given
+        node to the root. The utility of a node is only updated if it is a node that must contain the win rate of the
         player who won the simulation, otherwise the utility is not modified.
 
         Args:
@@ -152,12 +170,12 @@ class UCTAgent(Agent):
         """Calculates the UCB1 value for a given node.
 
         Args:
-            node (Node): The node to calculate the UCB1 value for. 
+            node (Node): The node to calculate the UCB1 value for.
 
         Returns:
             float: The UCB1 value of the node. Returns infinity if the node has not been visited yet.
         """
         if node.N == 0:
             return float("inf")
-        
+
         return node.U / node.N + math.sqrt(2) * math.sqrt(math.log10(node.parent.N) / node.N)

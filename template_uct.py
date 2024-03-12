@@ -163,7 +163,9 @@ class UCTAgent(Agent):
         """
         while node is not None:
             node.N += 1
-            node.U += result
+            if (self.player == 0 and result == 1) or (self.player == 1 and result == -1):
+                node.U += result
+            result = -result
             node = node.parent
 
     def UCB1(self, node):
@@ -178,4 +180,4 @@ class UCTAgent(Agent):
         if node.N == 0:
             return float("inf")
 
-        return node.U / node.N + math.sqrt(2) * math.sqrt(math.log(node.parent.N) / node.N)gi
+        return node.U / node.N + math.sqrt(2) * math.sqrt(math.log(node.parent.N) / node.N)

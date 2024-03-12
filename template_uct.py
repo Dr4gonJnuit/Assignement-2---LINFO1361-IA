@@ -26,6 +26,9 @@ class Node:
         self.U = 0
         self.N = 0
         self.children = {}
+    
+    def __str__(self):
+        return f"Node:\nParent: {self.parent}\nU: {self.U}\nN: {self.N}\nN: {self.N}\nChildren: {self.children}"
 
 class UCTAgent(Agent):
     """An agent that uses the UCT algorithm to determine the best move.
@@ -95,10 +98,8 @@ class UCTAgent(Agent):
             Node: The selected leaf node.
         """
         nbr_children_without_simulation = len(node.children) - sum([1 for child in node.children if child.N == 0])
-        if nbr_children_without_simulation == 0:
-            return node
         
-        if node.N == 0 or self.game.is_terminal(node.state):
+        if nbr_children_without_simulation == 0 or node.N == 0 or self.game.is_terminal(node.state):
             return node
                 
         return self.select(max(node.children, key=lambda n: self.UCB1(n)))
@@ -118,13 +119,11 @@ class UCTAgent(Agent):
         """
         if self.game.is_terminal(node.state):
             return node
-        
+                
         for child in node.children:
             if child.N == 0:
                 child.children = { Node(child, self.game.result(child.state, action)): action for action in self.game.actions(child.state) }
-                break
-
-        return child
+                return child
     
     def simulate(self, state):
         """Simulates a random play-through from the given state to a terminal state.

@@ -143,7 +143,7 @@ class UCTAgent(Agent):
             random_action = random.choice(possible_actions)
             current_state = self.game.result(current_state, random_action)
 
-        return -current_state.utility if self.player == 0 else current_state.utility
+        return current_state.utility
 
     def back_propagate(self, result, node):
         """Propagates the result of a simulation back up the tree, updating node statistics.

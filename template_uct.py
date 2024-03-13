@@ -27,8 +27,10 @@ class Node:
         self.N = 0
         self.children = {}
     
+    """
     def __str__(self):
-        return f"Node:\nParent: {self.parent}\nU: {self.U}\nN: {self.N}\nN: {self.N}\nChildren: {self.children}"
+        return f"Node:\nParent: {"Node" if self.parent != None else "None"}\nU: {self.U}\nN: {self.N}\nN: {self.N}\nChildren: {len(self.children)}\n"
+    """
 
 class UCTAgent(Agent):
     """An agent that uses the UCT algorithm to determine the best move.
@@ -97,11 +99,12 @@ class UCTAgent(Agent):
         Returns:
             Node: The selected leaf node.
         """
-        nbr_children_without_simulation = len(node.children) - sum([1 for child in node.children if child.N == 0])
-        
-        if nbr_children_without_simulation == 0 or node.N == 0 or self.game.is_terminal(node.state):
+        # Return a leaf
+        child_without_simulation = any(child.N == 0 for child in node.children)
+        if child_without_simulation or self.game.is_terminal(node.state):
             return node
-                
+        
+        # Select the child with the highest UCB1 value        
         return self.select(max(node.children, key=lambda n: self.UCB1(n)))
 
     def expand(self, node):

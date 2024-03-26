@@ -29,12 +29,6 @@ class Node:
         self.N = 0
         self.children = {}
 
-    """
-    def __str__(self):
-        return f"Node:\nParent: {"Node" if self.parent != None else "None"}\nU: {self.U}\nN: {self.N}\nN: {self.N}\nChildren: {len(self.children)}\n"
-    """
-
-
 class UCTAgent(Agent):
     """An agent that uses the UCT algorithm to determine the best move.
 
@@ -80,8 +74,7 @@ class UCTAgent(Agent):
             ShobuAction: The action leading to the best-perceived outcome based on UCT algorithm.
         """
         root = Node(None, state)
-        root.children = {Node(root, self.game.result(root.state, action)): action for action in
-                         self.game.actions(root.state)}
+        root.children = {Node(root, self.game.result(root.state, action)): action for action in self.game.actions(root.state)}
         for _ in range(self.iteration):
             leaf = self.select(root)
             child = self.expand(leaf)
@@ -110,6 +103,7 @@ class UCTAgent(Agent):
 
         max_value = float("-inf")
 
+        # Select the child with the highest UCB1 value
         for child in node.children:
             child_UCB1 = self.UCB1(child)
 
@@ -120,15 +114,11 @@ class UCTAgent(Agent):
                 if max_value == float("inf"):
                     break
 
+        # If the best child has not been visited, return his parent
         if max_value == float("inf"):
             return best_child.parent
 
         return self.select(best_child)
-
-        """
-        # Select the child with the highest UCB1 value        
-        return self.select(max(node.children, key=lambda n: self.UCB1(n)))
-        """
 
     def expand(self, node):
         """Expands a node by adding a child node to the tree for an unexplored action.
@@ -146,15 +136,12 @@ class UCTAgent(Agent):
         if self.game.is_terminal(node.state):
             return node
 
+        # Choose a child with no simulation and create all his children
         children_without_simulation = [child for child in node.children if child.N == 0]
         choosen_child = random.choice(children_without_simulation)
-        choosen_child.children = {Node(choosen_child, self.game.result(choosen_child.state, action)): action for action
-                                  in self.game.actions(choosen_child.state)}
+        choosen_child.children = { Node(choosen_child, self.game.result(choosen_child.state, action)): action for action in self.game.actions(choosen_child.state) }
+        
         return choosen_child
-        """for child in node.children:
-            if child.N == 0:
-                child.children = { Node(child, self.game.result(child.state, action)): action for action in self.game.actions(child.state) }
-                return child"""
 
     def simulate(self, state):
         """Simulates a random play-through from the given state to a terminal state.
@@ -174,7 +161,6 @@ class UCTAgent(Agent):
             current_state = self.game.result(current_state, random_action)
             i += 1
 
-        # return -state.utility if self.player == 0 else state.utility
         return self.game.utility(current_state, 1 - state.to_move)
 
     def back_propagate(self, result, node):
@@ -189,12 +175,11 @@ class UCTAgent(Agent):
             result (float): The result of the simulation.
             node (Node): The node to start backpropagation from.
         """
-        # comment this
+        # In case result is a negative number, we want to be sure that we don't have a negative utility
         result = max(0, result)
 
         while node is not None:
             node.N += 1
-            # if result == 1:
             node.U += result
             result = 1 - result
             node = node.parent

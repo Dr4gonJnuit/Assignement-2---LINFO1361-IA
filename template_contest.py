@@ -19,7 +19,8 @@ class AI(Agent):
             max_depth (int): The maximum depth of the search tree.
         """
         super().__init__(player, game)
-        self.max_depth = 1
+        self.max_depth = 2 # 50 # A game rarely goes beyond 50 moves
+        self.C = 2
 
     def play(self, state, remaining_time):
         """Determines the next action to take in the given state.
@@ -48,7 +49,7 @@ class AI(Agent):
 
         return False
 
-    def eval(self, state):
+    def eval(self, state): # Not strong enough
         """Evaluates the given state and returns a score from the perspective of the agent's player.
 
         Args:
@@ -57,6 +58,7 @@ class AI(Agent):
         Returns:
             float: The evaluated score of the state.
         """
+        # TODO: Implement a better evaluation function
         pieces_player, pieces_opponent = float("inf"), float("inf")
 
         board = state.board
@@ -64,7 +66,7 @@ class AI(Agent):
             pieces_player = min(len(home_board[self.player]), pieces_player)
             pieces_opponent = min(len(home_board[1 - self.player]), pieces_opponent)
 
-        return pieces_player - pieces_opponent
+        return self.C * pieces_player - pieces_opponent
 
     def alpha_beta_search(self, state):
         """Implements the alpha-beta pruning algorithm to find the best action.
@@ -97,12 +99,16 @@ class AI(Agent):
             tuple: A tuple containing the best value achievable from this state and the action that leads to this value.
                 If the state is a terminal state or the depth limit is reached, the action will be None.
         """
+        """
         if depth == 0:
             a = list(filter(lambda action: action.passive_board_id == 0 and action.passive_stone_id == 0 and action.active_board_id == 3 and action.active_stone_id == 0 and action.direction == 5 and action.length == 2, state.actions))
-            return (float("inf"), a[0])
+            return (float("inf"), a[0] if len(a) > 0 else None)
+        """
 
         if self.is_cutoff(state, depth):
-            return (self.eval(state), None)
+            score = self.eval(state)
+            score += random.random() * 0.01 * score
+            return (score, None)
 
         v, move = -float("inf"), None
         for action in state.actions:
@@ -136,7 +142,9 @@ class AI(Agent):
                 If the state is a terminal state or the depth limit is reached, the action will be None.
         """
         if self.is_cutoff(state, depth):
-            return (self.eval(state), None)
+            score = self.eval(state)
+            score += random.random() * 0.01 * score
+            return (score, None)
 
         v, move = float("inf"), None
         for action in state.actions:

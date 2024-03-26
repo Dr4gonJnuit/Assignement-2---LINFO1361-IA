@@ -164,3 +164,4 @@ if __name__ == "__main__":
         agent_white, agent_black = get_agents(args, args.display)
         winner, n_moves = main(agent_white, agent_black, display=args.display, log_file=log_file, play_time=args.time)
         print(f"Winner: {winner}, n_moves: {n_moves}")
+        

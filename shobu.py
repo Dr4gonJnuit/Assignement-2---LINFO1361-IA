@@ -371,3 +371,4 @@ class ShobuGame:
                 return 1
         
         return 0
+    

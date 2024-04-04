@@ -19,7 +19,7 @@ class AI(Agent):
             max_depth (int): The maximum depth of the search tree.
         """
         super().__init__(player, game)
-        self.max_depth = 2 # 50 # A game rarely goes beyond 50 moves
+        self.max_depth = 2 # 50 A game rarely goes beyond 50 moves -> but 50 is too much
         self.C = 2
 
     def play(self, state, remaining_time):

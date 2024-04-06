@@ -1,10 +1,8 @@
 __pycache__/
-.idea/
 .venv/
 
 # Ignore the output of the rapport
-assignment_2_report/
-assignment_2_report/!images/
-assignment_2_report/!report_a2.pdf
-assignment_2_report/!report_a2.tex
-assignment_2_report/!report_a2.cls
+report_a2.*
+!report_a2.pdf
+!report_a2.tex
+!report_a2.cls

@@ -195,8 +195,8 @@ resulting new pruning.  \textbf{(1~pt)}
 \end{enumerate}
 
 \begin{answers}[8cm]
-%TODO Insert the path to your image between the {}. 
-% Possibly adjust the scale parameter so your image fits in the box.
+    %TODO Insert the path to your image between the {}. 
+    % Possibly adjust the scale parameter so your image fits in the box.
 \includegraphics[scale=.4]{images/optimal_ordering_q4.png}
 \end{answers}
 
@@ -208,7 +208,16 @@ resulting new pruning.  \textbf{(1~pt)}
 \end{enumerate}
 
 \begin{answers}[9cm]
-%TODO Insert your answer here
+    %TODO Insert your answer here
+Plutôt que de comparer les valeurs $\alpha$ et $\beta$ pour chaque joueur, il faut imaginer que chacun des joueurs est un joueur \textit{max} et que, de ce fait, chacun cherche à maximiser son score. Chaque joueur vont assumer que leurs adversaires cherchent à maximiser leur score aussi et donc jouer les meilleurs coups possibles.
+
+L'arbre de recherche utilisé sera plus ou moins identique à celui d'Alpha-Beta où chaque noeud représente un état du jeu. On va donc devoir évaluer les noeuds en fonction des joueurs et non plus en fonction d'un seul joueur.
+
+On a les noeuds finaux qui sont des tuples avex n valeurs, n étant le nombre de joueurs. Le noeud parent indique à quel joueur c'est le tour de jouer. On peut donc prendre le noeud final qui maximise le score du joueur actuel.
+
+\underline{Exemple :} si on a deux noeuds finaux : (2, 8, 1) et (1, 7, 3) que c'est le tour du joueur 3, on prendra le tuple (1, 7, 2) parce que 3 est plus grand que 1. Si c'est le tour du joueur 1, on prendra le tuple (2, 8, 1) parce que 2 est plus grand que 1. Et si c'est le tour du joueur 2, on prendra le tuple (2, 8, 1) parce que 8 est plus grand que 7.
+
+On peut aussi réduire l'arbre avec le pruning : si c'est au joueur i de jouer et que le ième élément du tuple de l'un de ses enfants est égale à la borne supérieure sur la somme de toutes les éléments du tuples. On peut alors couper l'arbre à ce niveau là.
 \end{answers}
 
 
@@ -234,6 +243,9 @@ resulting new pruning.  \textbf{(1~pt)}
 
 \begin{answers}[5cm]
     % TODO put your answer here
+Au début de la partien le nombre de coup possibles est au nombre de 116. Le facteur de branchement au début de la partie est de 116.
+
+Au cours de la partie, dans le cas extrème où il n'y a que deux cailloux sur le plateau (un pour chaque joueur sinon ça sinifierait que la partie est finie),le nombre de coups possibles est de 9. Le facteur de branchement moyen est donc de 62,5.
 \end{answers}
 
 
@@ -244,6 +256,9 @@ resulting new pruning.  \textbf{(1~pt)}
 
 \begin{answers}[10cm]
     % TODO put your answer here
+L'heuristique ne prennant en compte que le nombre de pions restants sur le plateau. Cela signifie que l'agent ignore la position des pions sur le plateau et donc il n'y a aucune stratégie de blocage ou de prise de pions adverses. Cela peut mener à des situations où l'agent ne voit pas qu'il peut gagner, protéger ses pions ou bloquer l'adversaire. 
+
+Lors de certaines parties, l'agent aurait pu gagner en un coup mais il a continué à jouer sans voir la possibilité de terminer la partie.
 \end{answers}
 
 
@@ -254,6 +269,13 @@ resulting new pruning.  \textbf{(1~pt)}
 
 \begin{answers}[15cm]
     % TODO put your answer here
+L'idée derrière l'utilisation de la simulation aléatoire est qu'on peut obtenir une estimation raisonnable du taux de victoire.
+
+En effet, cette approche s'appuie sur la loi des grands nombres stipulant que la moyenne des résultats obtenus à partir d'un grand nombre d'essais devrait être proche de la valeur attendue du taux de victoire.
+
+Le soucis avec cette hypothèse est que si on a un trop petit nombre de simulation, le résultat ne reflètera psa forcément la réalité. On peut n'avoir eu que des simulations où agent adverse a joué de manière sub-optimale et donc notre agent peut prendre un peu trop la confiance et perdre quand l'adversaire jouera des coups qu'il n'avait pas prévu.
+
+De plus, rien n'empèche de simuler plusieur fois une partie qui tourne en boucle, le résultat obtenu ne sera alors pas du tout efficace pour calculer le taux de victoire.
 \end{answers}
 
 
